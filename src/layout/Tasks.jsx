@@ -30,7 +30,11 @@ export const Tasks = () => {
   const { enqueueSnackbar } = useSnackbar()
 
   const deleteTask = (id) => {
-    axios.delete(baseUrl+'tasks/task/'+id)
+    axios.delete(baseUrl+'tasks/task/'+id, {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    })
     setTasks(prev => prev.filter(task => task.id != id))
     enqueueSnackbar('Successful delete method!', {
       variant: 'error',
@@ -42,7 +46,11 @@ export const Tasks = () => {
   }
 
   const getTask = async (id) => {
-    const response = await fetch(baseUrl+'tasks/task-retrieve/'+id)
+    const response = await fetch(baseUrl+'tasks/task-retrieve/'+id, {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    })
     const data = await response.json()
     let due_date = new Date(data.due_date)
     due_date = due_date.toLocaleString('en-US', {
@@ -57,6 +65,7 @@ export const Tasks = () => {
     setUserId(id)
     if(id != '') {
       let idTask = {...tasks.find(task => task.id == id)}
+      console.log(idTask.due_date)
       setTask({...idTask, user: idTask.user.id})
     }
     setOpen(true)
@@ -79,7 +88,8 @@ export const Tasks = () => {
     fetch(baseUrl+'tasks/task/'+userId, {
       method: method,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
       },
       body: body
     })
@@ -93,6 +103,7 @@ export const Tasks = () => {
             setTasks(prev => [...prev, data])
             break
         }
+        console.log(data)
         enqueueSnackbar(`successful ${method} method!`, {
           variant: 'success',
           anchorOrigin: {
@@ -208,10 +219,10 @@ export const Tasks = () => {
               slotProps={{
                 inputLabel: { shrink: true }
               }}
-              value={task.due_date}
+              value={task.due_date.replace('Z', '')}
               onChange={e => setTask(prev => ({...prev, due_date: e.target.value}))}
             />
-            <FormControlLabel control={<Checkbox defaultChecked={task.checked} onChange={e => setTask(prev => ({...prev, checked: e.target.checked}))} />} label='Check task' />
+            <FormControlLabel control={<Checkbox checked={task.checked} onChange={e => setTask(prev => ({...prev, checked: e.target.checked}))} />} label='Check task' />
             <InputLabel id='user-label'>Usuario</InputLabel>
             <Select
               //todo additional params
@@ -225,6 +236,7 @@ export const Tasks = () => {
               onChange={e => setTask(prev => ({...prev, user: e.target.value}))}
             >
               {users.map(user => <MenuItem key={user.id} value={user.id}>{user.username}</MenuItem>)}
+              {/* {users.map(user => <MenuItem key={user.id} value={{id: user.id, username: user.username}}>{user.username}</MenuItem>)} */}
             </Select>
             <InputLabel id='priority-label'>Nivel de prioridad</InputLabel>
             <Select
