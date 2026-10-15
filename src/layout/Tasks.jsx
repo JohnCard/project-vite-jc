@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Task } from '../components/Task'
 import axios from 'axios'
 import { useSnackbar  } from 'notistack'
+// import { setOpen, setTaskDialog } from '../features/stateSlacers'
 
 const token = import.meta.env.VITE_TOKEN
 // const fakeResolve = () => new Promise(resolve => setTimeout(resolve, 3000))
@@ -20,12 +21,12 @@ export const Tasks = () => {
   const [loading, setLoading] = useState(true)
   const [usersLoading, setUsersLoading] = useState(true)
   const [open, setOpen] = useState(false)
+  const [taskDialog, setTaskDialog] = useState(false)
   const [tasks, setTasks] = useState([])
   const [users, setUsers] = useState([])
   const [userId, setUserId] = useState('')
   const [method, setMethod] = useState('')
   const [task, setTask] = useState(initialTask)
-  const [taskDialog, setTaskDialog] = useState(false)
   const [title, setTitle] = useState('Failed tasks data request!')
   const { enqueueSnackbar } = useSnackbar()
 
@@ -103,7 +104,6 @@ export const Tasks = () => {
             setTasks(prev => [...prev, data])
             break
         }
-        console.log(data)
         enqueueSnackbar(`successful ${method} method!`, {
           variant: 'success',
           anchorOrigin: {
