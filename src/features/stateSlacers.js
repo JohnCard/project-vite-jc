@@ -1,21 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit"; 
 
 const stateSlice = createSlice({
-    name: 'stateManager',
+    name: 'stateManage',
     initialState: {
         open: false,
         taskDialog: false
     },
 
     reducers: {
-        setOpen: (state) => {
-            state.open = !state.open
+        setOpen: (state, action) => {
+            state.open = action.payload
         },
-        setTaskDialog: (state) => {
-            state.taskDialog = !state.taskDialog
+        setTaskDialog: (state, action) => {
+            state.taskDialog = action.payload
         }
     }
 })
 
 export const { setOpen, setTaskDialog } = stateSlice.actions
-export default stateSlice.reducer
+export const stateReducer = stateSlice.reducer

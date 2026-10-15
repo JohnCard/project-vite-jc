@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react'
 import { Task } from '../components/Task'
 import axios from 'axios'
 import { useSnackbar  } from 'notistack'
-// import { setOpen, setTaskDialog } from '../features/stateSlacers'
+import { setOpen, setTaskDialog } from '../features/stateSlacers.js'
+import { useSelector, useDispatch } from 'react-redux'
+import { useQuery } from '@tanstack/react-query'
 
 const token = import.meta.env.VITE_TOKEN
 // const fakeResolve = () => new Promise(resolve => setTimeout(resolve, 3000))
@@ -20,17 +22,31 @@ const initialTask = {
 export const Tasks = () => {
   const [loading, setLoading] = useState(true)
   const [usersLoading, setUsersLoading] = useState(true)
-  const [open, setOpen] = useState(false)
-  const [taskDialog, setTaskDialog] = useState(false)
   const [tasks, setTasks] = useState([])
   const [users, setUsers] = useState([])
   const [userId, setUserId] = useState('')
   const [method, setMethod] = useState('')
   const [task, setTask] = useState(initialTask)
   const [title, setTitle] = useState('Failed tasks data request!')
+  // notistack library
   const { enqueueSnackbar } = useSnackbar()
+  // redux components
+  const open = useSelector(state => state.stateManage.open)
+  const taskDialog = useSelector(state => state.stateManage.taskDialog)
+  const dispatch = useDispatch()
+  // tanstack
+  // const { data, isPending, isError, isSuccess } = useQuery({
+  //   queryKey: ['tasks'],
+  //   queryFn: async () => {
+  //     const response = await fetch(baseUrl+'tasks/tasks')
 
-  const deleteTask = (id) => {
+  //     if(!response.ok) throw new Error('Failed tasks request!')
+
+  //     return response.json()
+  //   }
+  // })
+
+  const deleteTask = id => {
     axios.delete(baseUrl+'tasks/task/'+id, {
       headers: {
         Authorization: `Token ${token}`
@@ -46,7 +62,7 @@ export const Tasks = () => {
     })
   }
 
-  const getTask = async (id) => {
+  const getTask = async id => {
     const response = await fetch(baseUrl+'tasks/task-retrieve/'+id, {
       headers: {
         'Authorization': `Token ${token}`
@@ -69,17 +85,16 @@ export const Tasks = () => {
       console.log(idTask.due_date)
       setTask({...idTask, user: idTask.user.id})
     }
-    setOpen(true)
+    dispatch(setOpen(true))
   }
 
-  const openTaskDialog = (id) => {
+  const openTaskDialog = id => {
     getTask(id)
-    setTaskDialog(true)
+    dispatch(setTaskDialog(true))
   }
 
-  const closeDialog = (dialogCloseMethod) => {
-    dialogCloseMethod(false)
-    setTask(initialTask)
+  const closeDialog = dialogCloseMethod => {
+    dispatch(dialogCloseMethod(false))
   }
 
   const handleSubmit = e => {
@@ -114,7 +129,7 @@ export const Tasks = () => {
       })
       .catch(error => console.error(error))
       .finally(() => {
-        setOpen(false)
+        dispatch(setOpen(false))
         setTask(initialTask)
       })
   }
@@ -167,6 +182,7 @@ export const Tasks = () => {
     fetchTasks()
   }, [])
 
+  // if(isSuccess) return <Container
   return <Container
       maxWidth='xl'
       sx={{
@@ -299,6 +315,7 @@ export const Tasks = () => {
           gap: 2
         }}
       >
+        {/* {data.results.map(task => <Task task={task} key={task.id} openDialog={openDialog} deleteTask={deleteTask} openTaskDialog={openTaskDialog} />)} */}
         {tasks.map(task => <Task task={task} key={task.id} openDialog={openDialog} deleteTask={deleteTask} openTaskDialog={openTaskDialog} />)}
       </Box>
     </Container>
