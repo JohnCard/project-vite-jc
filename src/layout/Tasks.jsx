@@ -6,9 +6,10 @@ import { useSnackbar  } from 'notistack'
 import { setOpen, setTaskDialog } from '../features/stateSlacers.js'
 import { useSelector, useDispatch } from 'react-redux'
 import { useQuery } from '@tanstack/react-query'
+import { isPending } from '@reduxjs/toolkit'
 
 const token = import.meta.env.VITE_TOKEN
-// const fakeResolve = () => new Promise(resolve => setTimeout(resolve, 3000))
+const fakeResolve = () => new Promise(resolve => setTimeout(resolve, 3000))
 const baseUrl = 'http://127.0.0.1:8000/'
 const initialTask = {
   name: '',
@@ -35,16 +36,16 @@ export const Tasks = () => {
   const taskDialog = useSelector(state => state.stateManage.taskDialog)
   const dispatch = useDispatch()
   // tanstack
-  // const { data, isPending, isError, isSuccess } = useQuery({
-  //   queryKey: ['tasks'],
-  //   queryFn: async () => {
-  //     const response = await fetch(baseUrl+'tasks/tasks')
+  const { data, isPending, isError, isSuccess } = useQuery({
+    queryKey: ['tasks'],
+    queryFn: async () => {
+      const response = await fetch(baseUrl+'tasks/tasks')
 
-  //     if(!response.ok) throw new Error('Failed tasks request!')
+      if(!response.ok) throw new Error('Failed tasks request!')
 
-  //     return response.json()
-  //   }
-  // })
+      return response.json()
+    }
+  })
 
   const deleteTask = id => {
     axios.delete(baseUrl+'tasks/task/'+id, {
@@ -182,8 +183,10 @@ export const Tasks = () => {
     fetchTasks()
   }, [])
 
-  // if(isSuccess) return <Container
-  return <Container
+  if(isPending) return <Typography variant='h2' component='h1'>Pending load data...</Typography>
+
+  if(isSuccess) return <Container
+  // return <Container
       maxWidth='xl'
       sx={{
         mt: 4
